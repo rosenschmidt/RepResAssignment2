@@ -20,9 +20,13 @@ sessionInfo()
 
 ```{r processdata, cache=TRUE}
 
+# on my system, I had to change https to http in the URL from te web site.
+# URL <- "http://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2"
+# download.file(URL,"test.bz2")
+# since we have downloaded the file and I've used cygwin cmp to verify that it's
+# the same, we just use the file downloaded from the web site.
+# for safety's sake, we use the file that's checked in to this github repository
 # use the cache=TRUE Rmd option, since this is the slowest part
-# according to discussion forums for this group, the fact that I can 
-# call read.table() on a bz2 file without first unzipping it is system dependent.
 
 main_data <- read.table("repdata-data-StormData.csv.bz2",
                          sep=",",
