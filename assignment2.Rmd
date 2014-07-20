@@ -1,0 +1,309 @@
+================================================================================
+# An Analysis of some Weather Data to Determine Economic and Human Costs
+
+For coursera course Reproducible Data with Roger Peng et. al., July 2014
+
+================================================================================
+
+## Synopsis
+
+
+================================================================================
+
+## Data Processing
+
+TO DO: unzip the data successfully (so far no luck)
+
+```{r showsetup}
+sessionInfo()
+```
+
+```{r processdata, cache=TRUE}
+
+# use the cache=TRUE Rmd option, since this is the slowest part
+# according to discussion forums for this group, the fact that I can 
+# call read.table() on a bz2 file without first unzipping it is system dependent.
+
+main_data <- read.table("repdata-data-StormData.csv.bz2",
+                         sep=",",
+                         header=TRUE,
+                         strip.white=TRUE)
+
+```
+
+================================================================================
+
+
+## A Further Note on Data Processing - PROBLEMS WITH THE DATA!
+
+The strip.white=TRUE begins the process of cleaning the EVTYPE variable.
+According to the documentation INSERT URL HERE, there are 48 allowed 
+event types. And yet casual inspection of the data set shows a lot! What is a lot?
+I mean, like a thousand, which I will demonstrate here. and recall that we have
+already stripped white space in the read.table above, because visual inspection
+showed EVTYPES such as "WIND", " WIND", "   WIND     ", etc.
+
+Since we got rid of white space, let's get rid of all the upper and lower case
+combinatorics, which eliminates about 100 of the 1000, or 10%:
+
+```{r cleanevents, cache=TRUE}
+main_data$EVTYPE <- toupper(main_data$EVTYPE)
+# when we use toupper, it converts it to char from factor so we put it back
+# the way it was
+main_data$EVTYPE <- as.factor(main_data$EVTYPE)
+
+event_types  <- with(main_data,table(EVTYPE))
+
+# I cannot make heads nor tails of how to print this neatly, but if I do
+
+event_types <- as.data.frame(event_types)
+
+
+# then printing y to the terminal ( i.e. "> y <CR> " ) gives me
+# a nice columnar output. You can really see the repetition. SO -
+event_types
+
+
+```
+
+You will probably have to scroll up at this point if you forgot the question,
+but that's my point: there are 48 allowed EVTYPEs, and we still have 
+`r nrow(event_types)` values in the EVTYPE field.
+
+Of these `r nrow(event_types)` values, a simple visual inspection shows that many
+are variants, and a little work with grepl to replace like terms with 
+exactly the same term will quickly yield a better analysis.
+
+## AN EXECUTIVE DECISION: COMBINE EVENT TYPES
+
+It would be nice to use grep and so forth to combine all disallowed
+types into allowed types, without combinbing allowed types, but that gets messy.
+
+Therefore, even if it means **combining allowed values**, I will combine event types.
+I will do this for two reasons. First, for example, what is the difference
+between Blizzard, Heavy Snow, Winter Storm, and Winter Weather?
+Plus, one could argue that misclassification among **allowed types**
+disguises the economic and health costs of certain events.
+
+So as to make the analysis more reproducible, I will combine them into 
+my own added variable. As we recall from the prior classes, we can add a column
+to a data frame merly by naming it. We'll do this to event_types first
+to see how it looks.
+
+```{r combineevents, cache=TRUE}
+
+# create an empty additional variable
+event_types$EDITED <- rep("",length(event_types$EVTYPE))
+
+# Volcano action is pretty unique
+event_types$EDITED[grepl("VOLCAN",event_types$EVTYPE) &
+                   (event_types$EDITED == "")] <- "VOLCANIC ASH"
+
+# Tornado is pretty specific
+event_types$EDITED[grepl("TORNADO",event_types$EVTYPE) &
+                   (event_types$EDITED == "")] <- "TORNADO"
+event_types$EDITED[grepl("WATERSPOUT",event_types$EVTYPE) &
+                   (event_types$EDITED == "")] <- "TORNADO"
+event_types$EDITED[grepl("FUNNEL",event_types$EVTYPE) &
+                   (event_types$EDITED == "")] <- "TORNADO"
+event_types$EDITED[grepl("TORNDAO",event_types$EVTYPE) &
+                   (event_types$EDITED == "")] <- "TORNADO"
+
+# anything with dust seems to be its own deal
+event_types$EDITED[grepl("DUST",event_types$EVTYPE) &
+                   (event_types$EDITED == "")] <- "DUST"
+
+# do FLOOD before other rain/snow/ice events
+event_types$EDITED[grepl("FLOOD",event_types$EVTYPE) &
+                   (event_types$EDITED == "")] <- "FLOOD"
+
+# keep FROST separate (crop damage)
+event_types$EDITED[grepl("FROST",event_types$EVTYPE) &
+                   (event_types$EDITED == "")] <- "FROST"
+
+# hail is its own deal (crop damage)
+event_types$EDITED[grepl("HAIL",event_types$EVTYPE) &
+                   (event_types$EDITED == "")] <- "HAIL"
+
+# put all ICE events together
+event_types$EDITED[grepl("FREEZING",event_types$EVTYPE) &
+                   (event_types$EDITED == "")] <- "SLEET"
+event_types$EDITED[grepl("SLEET",event_types$EVTYPE) &
+                   (event_types$EDITED == "")] <- "SLEET"
+event_types$EDITED[grepl("ICE",event_types$EVTYPE) &
+                   (event_types$EDITED == "")] <- "SLEET"
+event_types$EDITED[grepl("ICY",event_types$EVTYPE) &
+                   (event_types$EDITED == "")] <- "SLEET"
+
+# combine the rest of WINTER (non-ICE) events
+event_types$EDITED[grepl("WINTER",event_types$EVTYPE) &
+                   (event_types$EDITED == "")] <- "WINTER"
+event_types$EDITED[grepl("WINTRY",event_types$EVTYPE) &
+                   (event_types$EDITED == "")] <- "WINTER"
+event_types$EDITED[grepl("BLIZZARD",event_types$EVTYPE) &
+                   (event_types$EDITED == "")] <- "WINTER"
+event_types$EDITED[grepl("THUNDERSNOW",event_types$EVTYPE) &
+                   (event_types$EDITED == "")] <- "WINTER"
+
+# COLD
+event_types$EDITED[grepl("COLD",event_types$EVTYPE) &
+                   (event_types$EDITED == "")] <- "COLD"
+event_types$EDITED[grepl("CHILL",event_types$EVTYPE) &
+                   (event_types$EDITED == "")] <- "COLD"
+
+# HEAT
+event_types$EDITED[grepl("HEAT",event_types$EVTYPE) &
+                   (event_types$EDITED == "")] <- "HEAT"
+event_types$EDITED[grepl("HOT",event_types$EVTYPE) &
+                   (event_types$EDITED == "")] <- "HEAT"
+
+
+# Thunderstorms
+event_types$EDITED[grepl("TSTM WIND",event_types$EVTYPE) &
+                   (event_types$EDITED == "")] <- "THUNDERSTORM WIND"
+event_types$EDITED[grepl("THUNDERSTORM",event_types$EVTYPE) &
+                   (event_types$EDITED == "")] <- "THUNDERSTORM WIND"
+# start picking off misspellings
+event_types$EDITED[grepl("THUNDER",event_types$EVTYPE) &
+                   (event_types$EDITED == "")] <- "THUNDERSTORM WIND"
+event_types$EDITED[grepl("TUNDER",event_types$EVTYPE) &
+                   (event_types$EDITED == "")] <- "THUNDERSTORM WIND"
+event_types$EDITED[grepl("THUNDEER",event_types$EVTYPE) &
+                   (event_types$EDITED == "")] <- "THUNDERSTORM WIND"
+event_types$EDITED[grepl("THUDER",event_types$EVTYPE) &
+                   (event_types$EDITED == "")] <- "THUNDERSTORM WIND"
+event_types$EDITED[grepl("STORM WIND",event_types$EVTYPE) &
+                   (event_types$EDITED == "")] <- "THUNDERSTORM WIND"
+
+event_types$EDITED[grepl("LIGHTNING",event_types$EVTYPE) &
+                   (event_types$EDITED == "")] <- "LIGHTNING"
+
+
+# at this point, everything left with snow is also winter
+event_types$EDITED[grepl("SNOW",event_types$EVTYPE) &
+                   (event_types$EDITED == "")] <- "WINTER"
+
+# TROPICAL STORMS, etc
+event_types$EDITED[grepl("TROPICAL",event_types$EVTYPE) &
+                   (event_types$EDITED == "")] <- "TROPICAL"
+event_types$EDITED[grepl("MARINE",event_types$EVTYPE) &
+                   (event_types$EDITED == "")] <- "TROPICAL"
+event_types$EDITED[grepl("TSUNAMI",event_types$EVTYPE) &
+                   (event_types$EDITED == "")] <- "TROPICAL"
+event_types$EDITED[grepl("TYPHOON",event_types$EVTYPE) &
+                   (event_types$EDITED == "")] <- "TROPICAL"
+event_types$EDITED[grepl("HURRICANE",event_types$EVTYPE) &
+                   (event_types$EDITED == "")] <- "TROPICAL"
+event_types$EDITED[grepl("SURGE",event_types$EVTYPE) &
+                   (event_types$EDITED == "")] <- "TROPICAL"
+event_types$EDITED[grepl("SURF",event_types$EVTYPE) &
+                   (event_types$EDITED == "")] <- "TROPICAL"
+
+# OTHER RAIN
+event_types$EDITED[grepl("RAIN",event_types$EVTYPE) &
+                   (event_types$EDITED == "")] <- "HEAVY RAIN"
+
+# let's start picking off wind, of which there's a lot
+event_types$EDITED[grepl("HIGH WIND",event_types$EVTYPE) &
+                   (event_types$EDITED == "")] <- "HIGH WIND"
+event_types$EDITED[grepl("MICROBURST",event_types$EVTYPE) &
+                   (event_types$EDITED == "")] <- "HIGH WIND"
+event_types$EDITED[grepl("MICOBURST",event_types$EVTYPE) &
+                   (event_types$EDITED == "")] <- "HIGH WIND"
+
+# FIRE
+event_types$EDITED[grepl("FIRE",event_types$EVTYPE) &
+                   (event_types$EDITED == "")] <- "WILDFIRE"
+event_types$EDITED[grepl("SMOKE",event_types$EVTYPE) &
+                   (event_types$EDITED == "")] <- "WILDFIRE"
+
+
+# at this point, everything left with WIND is high wind imho
+event_types$EDITED[grepl("WIND",event_types$EVTYPE) &
+                   (event_types$EDITED == "")] <- "HIGH WIND"
+
+# There are a LOT of events from 1996 called "summary"
+event_types$EDITED[grepl("SUMMARY",event_types$EVTYPE) &
+                   (event_types$EDITED == "")] <- "SUMMARY in 1996"
+
+# all the warm left means heat
+event_types$EDITED[grepl("WARM",event_types$EVTYPE) &
+                   (event_types$EDITED == "")] <- "HEAT"
+
+# drought
+event_types$EDITED[grepl("DROUGHT",event_types$EVTYPE) &
+                   (event_types$EDITED == "")] <- "DROUGHT"
+event_types$EDITED[grepl("DRY",event_types$EVTYPE) &
+                   (event_types$EDITED == "")] <- "DROUGHT"
+
+# rip tides will have fatalities, and there are about 400 of each spelling
+event_types$EDITED[grepl("RIP",event_types$EVTYPE) &
+                   (event_types$EDITED == "")] <- "RIP CURRENT"
+
+
+# remaining urbans are flood
+event_types$EDITED[grepl("URBAN",event_types$EVTYPE) &
+                   (event_types$EDITED == "")] <- "FLOOD"
+
+# earth movements
+event_types$EDITED[grepl("LANDSLIDE",event_types$EVTYPE) &
+                   (event_types$EDITED == "")] <- "AVALANCHE"
+event_types$EDITED[grepl("AVA",event_types$EVTYPE) &
+                   (event_types$EDITED == "")] <- "AVALANCHE"
+event_types$EDITED[grepl("ROCK",event_types$EVTYPE) &
+                   (event_types$EDITED == "")] <- "AVALANCHE"
+event_types$EDITED[grepl("MUD",event_types$EVTYPE) &
+                   (event_types$EDITED == "")] <- "AVALANCHE"
+
+# FOG
+event_types$EDITED[grepl("FOG",event_types$EVTYPE) &
+                   (event_types$EDITED == "")] <- "DENSE FOG"
+
+
+# edited_event_types  <- with(event_types,table(EDITED))
+# edited_event_types <- as.data.frame(edited_event_types)
+
+```
+
+Now we display a smaller, stylized group of event types to work with.
+The frequency of my combined/corrected events is as follows.
+
+```{r summaryeditedevents}
+rowsum(event_types$Freq,event_types$EDITED)
+```
+This shows our expected total of
+ `r sum(rowsum(event_types$Freq,event_types$EDITED))`, as expected.
+
+================================================================================
+
+## RESULTS
+
+We now map our stylized, simplified set of events to the main data set.
+
+```{r results1, cache=TRUE}
+main_data <- merge(main_data,event_types,by="EVTYPE")
+event_types2  <- with(main_data,table(EDITED))
+event_types2 <- as.data.frame(event_types2)
+
+```
+================================================================================
+
+## CONCLUSIONS
+
+
+================================================================================
+
+## SUMMARY
+
+
+================================================================================
+
+## scratch pad of stuff remove for final version
+
+```{r}
+# z <- main_data$BGN_DATE[grepl("summary",main_data$EVTYPE,ignore.case=TRUE)]
+
+# z
+```
+
+================================================================================
