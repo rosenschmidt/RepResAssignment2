@@ -7,12 +7,17 @@ For coursera course Reproducible Data with Roger Peng et. al., July 2014
 
 ## Synopsis
 
+This is a short analysis of NOAA weather storm database, specifically the 
+National Climactic Data Center Storm Events, at 
+
+TO DO - how do I put a URL in a .Rmd file?
 
 ================================================================================
 
 ## Data Processing
 
-TO DO: unzip the data successfully (so far no luck)
+TO DO: unzip the data successfully (so far no luck). But on my system I can 
+read the file.
 
 ```{r showsetup}
 sessionInfo()
@@ -23,10 +28,12 @@ sessionInfo()
 # on my system, I had to change https to http in the URL from te web site.
 # URL <- "http://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2"
 # download.file(URL,"test.bz2")
-# since we have downloaded the file and I've used cygwin cmp to verify that it's
+
+# Since we have downloaded the file and I've used cygwin cmp to verify that it's
 # the same, we just use the file downloaded from the web site.
-# for safety's sake, we use the file that's checked in to this github repository
-# use the cache=TRUE Rmd option, since this is the slowest part
+# for posterity's sake, we use the file that's checked in to this github repository.
+
+# We use the cache=TRUE Rmd option, since this is the slowest part
 
 main_data <- read.table("repdata-data-StormData.csv.bz2",
                          sep=",",
