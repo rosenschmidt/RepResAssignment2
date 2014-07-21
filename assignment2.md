@@ -11,14 +11,17 @@ Part of the Data Science sequence of courses.
 ## Synopsis
 
 TO DO
- - synopsis
- - uli zellbeck grepl improvements
+ - [done] synopsis
+ - [done] uli zellbeck grepl improvements
  - footnote to same
  - footnotes in Rmd?
  - vastly shorten the data cleanup section
- - try a tertiary, quaternary heading
- - why doesn't !file.exists work for me?
+ - [done] try a tertiary, quaternary heading
+ - [done] why doesn't !file.exists work for me?
+ - histogram bars - don't have control over them
+ - scaling of graphs
  - conclusions
+ - summary
 
 This is a short analysis of data from NOAA weather storm database,
 specifically the National Climactic Data Center Storm Events, at
@@ -98,7 +101,7 @@ sessionInfo()
 ## 
 ## loaded via a namespace (and not attached):
 ## [1] codetools_0.2-8 digest_0.6.4    evaluate_0.5.5  formatR_0.10   
-## [5] markdown_0.7    stringr_0.6.2   tools_3.1.1
+## [5] markdown_0.7    mime_0.1.1      stringr_0.6.2   tools_3.1.1
 ```
 which shows certain relevant information, except Windows 7 and an Intel
 motherboard and CPU.
@@ -225,6 +228,14 @@ So as to make the analysis more reproducible, I will combine them into
 my own added variable. As we recall from the prior classes, we can add a column
 to a data frame merly by naming it. We'll do this to event_types first
 to see how it looks.
+
+NOTE that the way that I do this, order *might* matter, in that for example
+I am only filling in the EDITED field if it was not previously filled in.
+Thus words like WIND, RAIN, etc which might appear multiply in descriptions,
+are sort of picked out in the order that I manually determined as I did these
+sequentially. Your mileage may vary. (However, as we find below, the results
+are so clear that for this level of analysis, it doesn't matter that much
+how we group them, as long as our grouping is sensible.)
 
 
 ```r
@@ -510,6 +521,105 @@ main_data$CROP_DAMAGE <- main_data$CROPDMG * 10^main_data$CD_EXPONENT
 ================================================================================
 
 ## CONCLUSIONS
+
+
+```r
+prop_damage <- aggregate(main_data$PROP_DAMAGE,by=list(main_data$EDITED),sum)
+colnames(prop_damage) <- c("EVENT","TOTAL")
+crop_damage <- aggregate(main_data$CROP_DAMAGE,by=list(main_data$EDITED),sum)
+colnames(crop_damage) <- c("EVENT","TOTAL")
+fatalities  <- aggregate(main_data$FATALITIES,by=list(main_data$EDITED),sum)
+colnames(fatalities) <- c("EVENT","TOTAL")
+injuries  <- aggregate(main_data$INJURIES,by=list(main_data$EDITED),sum)
+colnames(injuries) <- c("EVENT","TOTAL")
+
+prop_damage$EVENT <- as.factor(prop_damage$EVENT)
+crop_damage$EVENT <- as.factor(crop_damage$EVENT)
+fatalities$EVENT <- as.factor(fatalities$EVENT)
+injuries$EVENT <- as.factor(injuries$EVENT)
+```
+
+
+```r
+par(mfrow=c(2,1),mar=c(10,5,2.5,1),las=2)
+plot(prop_damage$EVENT,log10(prop_damage$TOTAL),
+     las=2,
+     type="h",
+     ylab="log base 10 of total property damage",
+     main="Property Damage")
+```
+
+```
+## Warning: no non-missing arguments to min; returning Inf
+## Warning: no non-missing arguments to max; returning -Inf
+## Warning: Outlier (-Inf) in boxplot 16 is not drawn
+```
+
+```r
+plot(crop_damage$EVENT,log10(crop_damage$TOTAL),
+     las=2,
+     type="h",
+     ylab="log base 10 of total crop damage",
+     main="Crop Damage")
+```
+
+```
+## Warning: no non-missing arguments to min; returning Inf
+## Warning: no non-missing arguments to max; returning -Inf
+## Warning: no non-missing arguments to min; returning Inf
+## Warning: no non-missing arguments to max; returning -Inf
+## Warning: no non-missing arguments to min; returning Inf
+## Warning: no non-missing arguments to max; returning -Inf
+## Warning: no non-missing arguments to min; returning Inf
+## Warning: no non-missing arguments to max; returning -Inf
+## Warning: Outlier (-Inf) in boxplot 4 is not drawn
+## Warning: Outlier (-Inf) in boxplot 14 is not drawn
+## Warning: Outlier (-Inf) in boxplot 16 is not drawn
+## Warning: Outlier (-Inf) in boxplot 20 is not drawn
+```
+
+![plot of chunk results2](figure/results2.png) 
+
+
+```r
+par(mfrow=c(2,1),mar=c(10,5,2.5,1),las=2)
+plot(fatalities$EVENT,log10(fatalities$TOTAL),
+     las=2,
+     type="h",
+     ylab="log base 10 of total fatalities",
+     main="Fatalities")
+```
+
+```
+## Warning: no non-missing arguments to min; returning Inf
+## Warning: no non-missing arguments to max; returning -Inf
+## Warning: no non-missing arguments to min; returning Inf
+## Warning: no non-missing arguments to max; returning -Inf
+## Warning: no non-missing arguments to min; returning Inf
+## Warning: no non-missing arguments to max; returning -Inf
+## Warning: Outlier (-Inf) in boxplot 5 is not drawn
+## Warning: Outlier (-Inf) in boxplot 16 is not drawn
+## Warning: Outlier (-Inf) in boxplot 20 is not drawn
+```
+
+```r
+plot(injuries$EVENT,log10(injuries$TOTAL),
+     las=2,
+     type="h",
+     ylab="log base 10 of total injuries",
+     main="Injuries")
+```
+
+```
+## Warning: no non-missing arguments to min; returning Inf
+## Warning: no non-missing arguments to max; returning -Inf
+## Warning: no non-missing arguments to min; returning Inf
+## Warning: no non-missing arguments to max; returning -Inf
+## Warning: Outlier (-Inf) in boxplot 16 is not drawn
+## Warning: Outlier (-Inf) in boxplot 20 is not drawn
+```
+
+![plot of chunk results3](figure/results3.png) 
 
 
 ================================================================================

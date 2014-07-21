@@ -11,14 +11,17 @@ Part of the Data Science sequence of courses.
 ## Synopsis
 
 TO DO
- - synopsis
- - uli zellbeck grepl improvements
+ - [done] synopsis
+ - [done] uli zellbeck grepl improvements
  - footnote to same
  - footnotes in Rmd?
  - vastly shorten the data cleanup section
- - try a tertiary, quaternary heading
- - why doesn't !file.exists work for me?
+ - [done] try a tertiary, quaternary heading
+ - [done] why doesn't !file.exists work for me?
+ - histogram bars - don't have control over them
+ - scaling of graphs
  - conclusions
+ - summary
 
 This is a short analysis of data from NOAA weather storm database,
 specifically the National Climactic Data Center Storm Events, at
@@ -179,6 +182,14 @@ my own added variable. As we recall from the prior classes, we can add a column
 to a data frame merly by naming it. We'll do this to event_types first
 to see how it looks.
 
+NOTE that the way that I do this, order *might* matter, in that for example
+I am only filling in the EDITED field if it was not previously filled in.
+Thus words like WIND, RAIN, etc which might appear multiply in descriptions,
+are sort of picked out in the order that I manually determined as I did these
+sequentially. Your mileage may vary. (However, as we find below, the results
+are so clear that for this level of analysis, it doesn't matter that much
+how we group them, as long as our grouping is sensible.)
+
 ```{r combineevents, cache=TRUE}
 
 # create an empty additional variable
@@ -334,7 +345,7 @@ event_types$EDITED[grepl(paste(list26,collapse="|"),event_types$EVTYPE) &
 Now we display a smaller, stylized group of event types to work with.
 The frequency of my combined/corrected events is as follows.
 
-```{r summaryeditedevents}
+```{r summaryeditedevents,cache=TRUE}
 rowsum(event_types$Freq,event_types$EDITED)
 ```
 This shows our expected total of
@@ -363,14 +374,14 @@ the dollars in PROPDMG; ditto for crop damage. The vast majority of these
 ...EXP fields are empty. As before, we are cautious and create a new edited
 field and work on that, so we can compare results. Inspection of the exponents
 shows we have nothing, +,-,?,and positive integers 0-9. 
-```{r showexponents}
+```{r showexponents,cache=TRUE}
 as.data.frame(with(main_data,table(PROPDMGEXP)))
 as.data.frame(with(main_data,table(CROPDMGEXP)))
 ```
 
 Nevertheless, we plunge ahead.
 
-```{r exponents}
+```{r exponents,cache=TRUE}
 
 main_data$PD_EXPONENT <- as.character(main_data$PROPDMGEXP)
 main_data$PD_EXPONENT[main_data$PD_EXPONENT==""] <- 0
@@ -399,6 +410,54 @@ main_data$CROP_DAMAGE <- main_data$CROPDMG * 10^main_data$CD_EXPONENT
 
 ## CONCLUSIONS
 
+```{r results,cache=TRUE}
+
+prop_damage <- aggregate(main_data$PROP_DAMAGE,by=list(main_data$EDITED),sum)
+colnames(prop_damage) <- c("EVENT","TOTAL")
+crop_damage <- aggregate(main_data$CROP_DAMAGE,by=list(main_data$EDITED),sum)
+colnames(crop_damage) <- c("EVENT","TOTAL")
+fatalities  <- aggregate(main_data$FATALITIES,by=list(main_data$EDITED),sum)
+colnames(fatalities) <- c("EVENT","TOTAL")
+injuries  <- aggregate(main_data$INJURIES,by=list(main_data$EDITED),sum)
+colnames(injuries) <- c("EVENT","TOTAL")
+
+prop_damage$EVENT <- as.factor(prop_damage$EVENT)
+crop_damage$EVENT <- as.factor(crop_damage$EVENT)
+fatalities$EVENT <- as.factor(fatalities$EVENT)
+injuries$EVENT <- as.factor(injuries$EVENT)
+
+```
+
+```{r results2,fig.height=20,fig.width=20,cache=TRUE}
+
+par(mfrow=c(2,1),mar=c(10,5,2.5,1),las=2)
+plot(prop_damage$EVENT,log10(prop_damage$TOTAL),
+     las=2,
+     type="h",
+     ylab="log base 10 of total property damage",
+     main="Property Damage")
+plot(crop_damage$EVENT,log10(crop_damage$TOTAL),
+     las=2,
+     type="h",
+     ylab="log base 10 of total crop damage",
+     main="Crop Damage")
+```
+
+```{r results3,fig.height=20,fig.width=20,cache=TRUE}
+
+par(mfrow=c(2,1),mar=c(10,5,2.5,1),las=2)
+plot(fatalities$EVENT,log10(fatalities$TOTAL),
+     las=2,
+     type="h",
+     ylab="log base 10 of total fatalities",
+     main="Fatalities")
+plot(injuries$EVENT,log10(injuries$TOTAL),
+     las=2,
+     type="h",
+     ylab="log base 10 of total injuries",
+     main="Injuries")
+```
+
 
 ================================================================================
 
@@ -409,7 +468,7 @@ main_data$CROP_DAMAGE <- main_data$CROPDMG * 10^main_data$CD_EXPONENT
 
 ## scratch pad of stuff remove for final version
 
-```{r}
+```{r delete_me}
 # z <- main_data$BGN_DATE[grepl("summary",main_data$EVTYPE,ignore.case=TRUE)]
 
 # z
