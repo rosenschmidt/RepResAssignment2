@@ -658,16 +658,16 @@ shows we have nothing, +,-,?,and positive integers 0-9. </p>
 
 <pre><code class="r">main_data$PD_EXPONENT &lt;- as.character(main_data$PROPDMGEXP)
 main_data$PD_EXPONENT[main_data$PD_EXPONENT==&quot;&quot;] &lt;- 0
-main_data$PD_EXPONENT[grepl(&quot;\\+|\\-|\\?&quot;,main_data$PD_EXPONENT)] &lt;- 0
-main_data$PD_EXPONENT[grepl(&quot;h|H&quot;,main_data$PD_EXPONENT)] &lt;- 2
-main_data$PD_EXPONENT[grepl(&quot;k|K&quot;,main_data$PD_EXPONENT)] &lt;- 3
-main_data$PD_EXPONENT[grepl(&quot;m|M&quot;,main_data$PD_EXPONENT)] &lt;- 6
-main_data$PD_EXPONENT[grepl(&quot;b|B&quot;,main_data$PD_EXPONENT)] &lt;- 9
+main_data$PD_EXPONENT[grepl(&quot;\\+|\\-|\\?&quot;,main_data$PD_EXPONENT)] &lt;- 0 # ignore
+main_data$PD_EXPONENT[grepl(&quot;h|H&quot;,main_data$PD_EXPONENT)] &lt;- 2 # hundreds
+main_data$PD_EXPONENT[grepl(&quot;k|K&quot;,main_data$PD_EXPONENT)] &lt;- 3 # thousands
+main_data$PD_EXPONENT[grepl(&quot;m|M&quot;,main_data$PD_EXPONENT)] &lt;- 6 # millions
+main_data$PD_EXPONENT[grepl(&quot;b|B&quot;,main_data$PD_EXPONENT)] &lt;- 9 # billions
 main_data$PD_EXPONENT &lt;- as.numeric(main_data$PD_EXPONENT)
 
 main_data$CD_EXPONENT &lt;- as.character(main_data$CROPDMGEXP)
 main_data$CD_EXPONENT[main_data$CD_EXPONENT==&quot;&quot;] &lt;- 0
-main_data$CD_EXPONENT[grepl(&quot;\\+|\\-|\\?&quot;,main_data$CD_EXPONENT)] &lt;- 0 # weird things
+main_data$CD_EXPONENT[grepl(&quot;\\+|\\-|\\?&quot;,main_data$CD_EXPONENT)] &lt;- 0 # ignore
 main_data$CD_EXPONENT[grepl(&quot;h|H&quot;,main_data$CD_EXPONENT)] &lt;- 2 # hundreds
 main_data$CD_EXPONENT[grepl(&quot;k|K&quot;,main_data$CD_EXPONENT)] &lt;- 3 # thousands
 main_data$CD_EXPONENT[grepl(&quot;m|M&quot;,main_data$CD_EXPONENT)] &lt;- 6 # millions

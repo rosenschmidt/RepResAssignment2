@@ -487,16 +487,16 @@ Nevertheless, we plunge ahead.
 ```r
 main_data$PD_EXPONENT <- as.character(main_data$PROPDMGEXP)
 main_data$PD_EXPONENT[main_data$PD_EXPONENT==""] <- 0
-main_data$PD_EXPONENT[grepl("\\+|\\-|\\?",main_data$PD_EXPONENT)] <- 0
-main_data$PD_EXPONENT[grepl("h|H",main_data$PD_EXPONENT)] <- 2
-main_data$PD_EXPONENT[grepl("k|K",main_data$PD_EXPONENT)] <- 3
-main_data$PD_EXPONENT[grepl("m|M",main_data$PD_EXPONENT)] <- 6
-main_data$PD_EXPONENT[grepl("b|B",main_data$PD_EXPONENT)] <- 9
+main_data$PD_EXPONENT[grepl("\\+|\\-|\\?",main_data$PD_EXPONENT)] <- 0 # ignore
+main_data$PD_EXPONENT[grepl("h|H",main_data$PD_EXPONENT)] <- 2 # hundreds
+main_data$PD_EXPONENT[grepl("k|K",main_data$PD_EXPONENT)] <- 3 # thousands
+main_data$PD_EXPONENT[grepl("m|M",main_data$PD_EXPONENT)] <- 6 # millions
+main_data$PD_EXPONENT[grepl("b|B",main_data$PD_EXPONENT)] <- 9 # billions
 main_data$PD_EXPONENT <- as.numeric(main_data$PD_EXPONENT)
 
 main_data$CD_EXPONENT <- as.character(main_data$CROPDMGEXP)
 main_data$CD_EXPONENT[main_data$CD_EXPONENT==""] <- 0
-main_data$CD_EXPONENT[grepl("\\+|\\-|\\?",main_data$CD_EXPONENT)] <- 0 # weird things
+main_data$CD_EXPONENT[grepl("\\+|\\-|\\?",main_data$CD_EXPONENT)] <- 0 # ignore
 main_data$CD_EXPONENT[grepl("h|H",main_data$CD_EXPONENT)] <- 2 # hundreds
 main_data$CD_EXPONENT[grepl("k|K",main_data$CD_EXPONENT)] <- 3 # thousands
 main_data$CD_EXPONENT[grepl("m|M",main_data$CD_EXPONENT)] <- 6 # millions
