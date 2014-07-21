@@ -1,39 +1,117 @@
 ================================================================================
 # An Analysis of some Weather Data to Determine Economic and Human Costs
 
-For coursera course Reproducible Data with Roger Peng et. al., July 2014
+#### by Fred Schmidt fred@rosenschmidt.org, July 2014
+
+For coursera Reproducible Data with Roger Peng et. al.
+Part of the Data Science sequence of courses.
 
 ================================================================================
 
 ## Synopsis
 
-This is a short analysis of NOAA weather storm database, specifically the 
-National Climactic Data Center Storm Events, at 
+TO DO
+ - synopsis
+ - uli zellbeck grepl improvements
+ - footnote to same
+ - footnotes in Rmd?
+ - vastly shorten the data cleanup section
+ - try a tertiary, quaternary heading
+ - why doesn't !file.exists work for me?
+ - conclusions
 
-TO DO - how do I put a URL in a .Rmd file?
+This is a short analysis of data from NOAA weather storm database,
+specifically the National Climactic Data Center Storm Events, at
+[NOAA](www.ncdc.noaa.gov/stormevents/details.jsp).
+More detailed documentation of the database is provided on that site,
+[documentation]( http://www.ncdc.noaa.gov/stormevents/pd01016005curr.pdf) in
+**.pdf** format. As described below, the data provided for this course assignment
+appears to have been massaged somewhat and may perhaps be different than
+what one might download directly from that site. The data cover the period
+January 3 1950, through November 30, 2011.
+
+
+The goal of the analysis is to measure, in a simple way, the economic and human
+costs of various weather events, as defined in dollar estimates, and 
+injuries and fatalities. Similar studies (e.g. submissions by other students
+in this class) may come to starkly different results, because of how the
+weather events are grouped - due to problems in the data, we must decide
+which weather events are "the same" in some sense.
+
+This analysis and its data are posted on my github site,
+[rosenschmidt](https://github.com/rosenschmidt/RepResAssignment2)
+along with the actual data used and, by the time you are reading this,
+perhaps some additional ancillary material.
+
+This analysis is somewhat over-documented, as it will be a record  to myself
+of how to do certain things.
 
 ================================================================================
 
 ## Data Processing
 
-TO DO: unzip the data successfully (so far no luck). But on my system I can 
-read the file.
+### Data Sources
 
+That particular [NOAA](www.ncdc.noaa.gov/stormevents/details.jsp) web site
+gave me a hint of the troubles to come. As these troubles came to light, 
+I attempted my own download of the data, but I did not see any way to easily
+replicate the download (all years in one file). Furthermore, a cursory inspection
+of the data revealed that it did not *seem* to have the problems in the file
+provided for the course. *Therefore*, I used the data file provided on the
+course website.
+
+In particular, that the database allows 48 different types of weather event,
+yet the dataset we are given for the class has nearly a thousand! That led to 
+the next dillemma. For the course, we are given a complete file,
+[datasite](http://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2)
+where all the years from 1950 through 2011. There are other questionable
+features of this dataset, which I won't go into,
+and if the scope of the assignment allowed,
+I would add a section to this analysis replicating the production of the data file
+from the NOAA website. As I've mentioned, however, that does not look
+straightforward, so we leave that as an exercise for the reader.
+
+### The Computing Environment I Used
+
+We use the command provided within **R** to show the environment:
 ```{r showsetup}
 sessionInfo()
 ```
+which shows certain relevant information, except Windows 7 and an Intel
+motherboard and CPU.
+Afaik this confirms that I am running the 64-bit version of R.
 
-```{r processdata, cache=TRUE}
+This file was tested and run first in Rgui,
+ and only the final run and submission were in Rstudio.
 
-# on my system, I had to change https to http in the URL from te web site.
-# URL <- "http://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2"
-# download.file(URL,"test.bz2")
 
-# Since we have downloaded the file and I've used cygwin cmp to verify that it's
-# the same, we just use the file downloaded from the web site.
-# for posterity's sake, we use the file that's checked in to this github repository.
+### Unzipping and Reading the Data
 
+
+TO DO: unzip the data successfully (so far no luck). But for whatever reason,
+on *MY* system, I can read the .bz2 file directly. 
+
+For posterity's sake, I've checked in to this github repository.
+
+```{r getdata, cache=TRUE}
 # We use the cache=TRUE Rmd option, since this is the slowest part
+
+if(!file.exists("repdata-data-StormData.csv.bz2"))
+     {
+        # I had to change https to http in the URL from the web site,
+        # to make this work on my system.
+        URL <- "http://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2"
+        download.file(URL,"repdata-data-StormData.csv.bz2")
+     }
+```
+
+Here is some text between getting and reading.
+
+
+```{r readdata, cache=TRUE}
+
+# Because I don't need to on my system, I save the unzip:
+# bunzip2("repdata-data-stormData.csv.bz2")
 
 main_data <- read.table("repdata-data-StormData.csv.bz2",
                          sep=",",
@@ -42,15 +120,19 @@ main_data <- read.table("repdata-data-StormData.csv.bz2",
 
 ```
 
+Note that I've already begun the data cleaning: namely, the option
+**strip.white=TRUE**. That's because, in this data set, there are event types
+that differ only in leading or trailing white space.
+
 ================================================================================
 
 
-## A Further Note on Data Processing - PROBLEMS WITH THE DATA!
+### A Further Note on Processing the Data - PROBLEMS WITH EVENT TYPES!
 
 The strip.white=TRUE begins the process of cleaning the EVTYPE variable.
-According to the documentation INSERT URL HERE, there are 48 allowed 
-event types. And yet casual inspection of the data set shows a lot! What is a lot?
-I mean, like a thousand, which I will demonstrate here. and recall that we have
+According to the [documentation](www.ncdc.noaa.gov/stormevents/details.jsp),
+ there are 48 allowed 
+event types. And yet casual inspection of the data set shows a lot! And we have
 already stripped white space in the read.table above, because visual inspection
 showed EVTYPES such as "WIND", " WIND", "   WIND     ", etc.
 
@@ -59,27 +141,23 @@ combinatorics, which eliminates about 100 of the 1000, or 10%:
 
 ```{r cleanevents, cache=TRUE}
 main_data$EVTYPE <- toupper(main_data$EVTYPE)
-# when we use toupper, it converts it to char from factor so we put it back
-# the way it was
+# when we use toupper, it converts it to char from factor so we put that back
 main_data$EVTYPE <- as.factor(main_data$EVTYPE)
 
 event_types  <- with(main_data,table(EVTYPE))
 
 # I cannot make heads nor tails of how to print this neatly, but if I do
-
 event_types <- as.data.frame(event_types)
-
-
-# then printing y to the terminal ( i.e. "> y <CR> " ) gives me
-# a nice columnar output. You can really see the repetition. SO -
-event_types
-
+# Now, printing y to the terminal ( i.e. "> y <CR> " ) would give me
+# a nice columnar output. 
+head(event_types,n=20)
 
 ```
 
-You will probably have to scroll up at this point if you forgot the question,
-but that's my point: there are 48 allowed EVTYPEs, and we still have 
-`r nrow(event_types)` values in the EVTYPE field.
+*There are `r nrow(event_types)` values in the EVTYPE field of this data set.
+Even though the documentation specifies 48 allowed EVTYPEs.*
+And this is *after* stripping white space and converting all characters to the
+same case.
 
 Of these `r nrow(event_types)` values, a simple visual inspection shows that many
 are variants, and a little work with grepl to replace like terms with 
