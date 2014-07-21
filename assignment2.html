@@ -393,7 +393,7 @@ same case.</p>
 are variants, and a little work with grepl to replace like terms with 
 exactly the same term will quickly yield a better analysis.</p>
 
-<h2>AN EXECUTIVE DECISION: COMBINE EVENT TYPES</h2>
+<h3>An Executive Decision: COMBINE EVENT TYPES</h3>
 
 <p>It would be nice to use grep and so forth to combine all disallowed
 types into allowed types, without combinbing allowed types, but that gets messy.</p>
@@ -413,168 +413,145 @@ to see how it looks.</p>
 event_types$EDITED &lt;- rep(&quot;&quot;,length(event_types$EVTYPE))
 
 # Volcano action is pretty unique
-event_types$EDITED[grepl(&quot;VOLCAN&quot;,event_types$EVTYPE) &amp;
+list1 &lt;- c(&quot;VOLCAN&quot;)
+event_types$EDITED[grepl(paste(list1,collapse=&quot;|&quot;),event_types$EVTYPE) &amp;
                    (event_types$EDITED == &quot;&quot;)] &lt;- &quot;VOLCANIC ASH&quot;
 
-# Tornado is pretty specific
-event_types$EDITED[grepl(&quot;TORNADO&quot;,event_types$EVTYPE) &amp;
-                   (event_types$EDITED == &quot;&quot;)] &lt;- &quot;TORNADO&quot;
-event_types$EDITED[grepl(&quot;WATERSPOUT&quot;,event_types$EVTYPE) &amp;
-                   (event_types$EDITED == &quot;&quot;)] &lt;- &quot;TORNADO&quot;
-event_types$EDITED[grepl(&quot;FUNNEL&quot;,event_types$EVTYPE) &amp;
-                   (event_types$EDITED == &quot;&quot;)] &lt;- &quot;TORNADO&quot;
-event_types$EDITED[grepl(&quot;TORNDAO&quot;,event_types$EVTYPE) &amp;
+# Tornado is also pretty specific
+list2 &lt;- c(&quot;TORNADO&quot;,&quot;WATERSPOUT&quot;,&quot;FUNNEL&quot;,&quot;TORNDAO&quot;)
+event_types$EDITED[grepl(paste(list2,collapse=&quot;|&quot;),event_types$EVTYPE) &amp;
                    (event_types$EDITED == &quot;&quot;)] &lt;- &quot;TORNADO&quot;
 
 # anything with dust seems to be its own deal
-event_types$EDITED[grepl(&quot;DUST&quot;,event_types$EVTYPE) &amp;
+list3 &lt;- c(&quot;DUST&quot;)
+event_types$EDITED[grepl(paste(list3,collapse=&quot;|&quot;),event_types$EVTYPE) &amp;
                    (event_types$EDITED == &quot;&quot;)] &lt;- &quot;DUST&quot;
 
-# do FLOOD before other rain/snow/ice events
-event_types$EDITED[grepl(&quot;FLOOD&quot;,event_types$EVTYPE) &amp;
+# do events with &quot;FLOOD&quot; in them BEFORE other rain/snow/ice events
+list4 &lt;- c(&quot;FLOOD&quot;)
+event_types$EDITED[grepl(paste(list4,collapse=&quot;|&quot;),event_types$EVTYPE) &amp;
                    (event_types$EDITED == &quot;&quot;)] &lt;- &quot;FLOOD&quot;
 
 # keep FROST separate (crop damage)
-event_types$EDITED[grepl(&quot;FROST&quot;,event_types$EVTYPE) &amp;
+list5 &lt;- c(&quot;FROST&quot;)
+event_types$EDITED[grepl(paste(list5,collapse=&quot;|&quot;),event_types$EVTYPE) &amp;
                    (event_types$EDITED == &quot;&quot;)] &lt;- &quot;FROST&quot;
 
 # hail is its own deal (crop damage)
-event_types$EDITED[grepl(&quot;HAIL&quot;,event_types$EVTYPE) &amp;
+list6 &lt;- c(&quot;HAIL&quot;)
+event_types$EDITED[grepl(paste(list6,collapse=&quot;|&quot;),event_types$EVTYPE) &amp;
                    (event_types$EDITED == &quot;&quot;)] &lt;- &quot;HAIL&quot;
 
 # put all ICE events together
-event_types$EDITED[grepl(&quot;FREEZING&quot;,event_types$EVTYPE) &amp;
-                   (event_types$EDITED == &quot;&quot;)] &lt;- &quot;SLEET&quot;
-event_types$EDITED[grepl(&quot;SLEET&quot;,event_types$EVTYPE) &amp;
-                   (event_types$EDITED == &quot;&quot;)] &lt;- &quot;SLEET&quot;
-event_types$EDITED[grepl(&quot;ICE&quot;,event_types$EVTYPE) &amp;
-                   (event_types$EDITED == &quot;&quot;)] &lt;- &quot;SLEET&quot;
-event_types$EDITED[grepl(&quot;ICY&quot;,event_types$EVTYPE) &amp;
+list7 &lt;- c( &quot;FREEZING&quot;, &quot;SLEET&quot;, &quot;ICE&quot;, &quot;ICY&quot;,&quot;FREEZE&quot;,&quot;GLAZE&quot;)
+event_types$EDITED[grepl(paste(list7,collapse=&quot;|&quot;),event_types$EVTYPE) &amp;
                    (event_types$EDITED == &quot;&quot;)] &lt;- &quot;SLEET&quot;
 
-# combine the rest of WINTER (non-ICE) events
-event_types$EDITED[grepl(&quot;WINTER&quot;,event_types$EVTYPE) &amp;
-                   (event_types$EDITED == &quot;&quot;)] &lt;- &quot;WINTER&quot;
-event_types$EDITED[grepl(&quot;WINTRY&quot;,event_types$EVTYPE) &amp;
-                   (event_types$EDITED == &quot;&quot;)] &lt;- &quot;WINTER&quot;
-event_types$EDITED[grepl(&quot;BLIZZARD&quot;,event_types$EVTYPE) &amp;
-                   (event_types$EDITED == &quot;&quot;)] &lt;- &quot;WINTER&quot;
-event_types$EDITED[grepl(&quot;THUNDERSNOW&quot;,event_types$EVTYPE) &amp;
+# combine the REST of WINTER (non-ICE) events
+list8 &lt;- c(&quot;WINTER&quot;, &quot;WINTRY&quot;, &quot;BLIZZARD&quot;, &quot;THUNDERSNOW&quot;)
+
+event_types$EDITED[grepl(paste(list8,collapse=&quot;|&quot;),event_types$EVTYPE) &amp;
                    (event_types$EDITED == &quot;&quot;)] &lt;- &quot;WINTER&quot;
 
 # COLD
-event_types$EDITED[grepl(&quot;COLD&quot;,event_types$EVTYPE) &amp;
-                   (event_types$EDITED == &quot;&quot;)] &lt;- &quot;COLD&quot;
-event_types$EDITED[grepl(&quot;CHILL&quot;,event_types$EVTYPE) &amp;
+list9 &lt;- c(&quot;COLD&quot;,&quot;CHILL&quot;)
+event_types$EDITED[grepl(paste(list9,collapse=&quot;|&quot;),event_types$EVTYPE) &amp;
                    (event_types$EDITED == &quot;&quot;)] &lt;- &quot;COLD&quot;
 
 # HEAT
-event_types$EDITED[grepl(&quot;HEAT&quot;,event_types$EVTYPE) &amp;
-                   (event_types$EDITED == &quot;&quot;)] &lt;- &quot;HEAT&quot;
-event_types$EDITED[grepl(&quot;HOT&quot;,event_types$EVTYPE) &amp;
+list10 &lt;- c(&quot;HEAT&quot;,&quot;HOT&quot;)
+event_types$EDITED[grepl(paste(list10,collapse=&quot;|&quot;),event_types$EVTYPE) &amp;
                    (event_types$EDITED == &quot;&quot;)] &lt;- &quot;HEAT&quot;
 
 
 # Thunderstorms
-event_types$EDITED[grepl(&quot;TSTM WIND&quot;,event_types$EVTYPE) &amp;
-                   (event_types$EDITED == &quot;&quot;)] &lt;- &quot;THUNDERSTORM WIND&quot;
-event_types$EDITED[grepl(&quot;THUNDERSTORM&quot;,event_types$EVTYPE) &amp;
-                   (event_types$EDITED == &quot;&quot;)] &lt;- &quot;THUNDERSTORM WIND&quot;
-# start picking off misspellings
-event_types$EDITED[grepl(&quot;THUNDER&quot;,event_types$EVTYPE) &amp;
-                   (event_types$EDITED == &quot;&quot;)] &lt;- &quot;THUNDERSTORM WIND&quot;
-event_types$EDITED[grepl(&quot;TUNDER&quot;,event_types$EVTYPE) &amp;
-                   (event_types$EDITED == &quot;&quot;)] &lt;- &quot;THUNDERSTORM WIND&quot;
-event_types$EDITED[grepl(&quot;THUNDEER&quot;,event_types$EVTYPE) &amp;
-                   (event_types$EDITED == &quot;&quot;)] &lt;- &quot;THUNDERSTORM WIND&quot;
-event_types$EDITED[grepl(&quot;THUDER&quot;,event_types$EVTYPE) &amp;
-                   (event_types$EDITED == &quot;&quot;)] &lt;- &quot;THUNDERSTORM WIND&quot;
-event_types$EDITED[grepl(&quot;STORM WIND&quot;,event_types$EVTYPE) &amp;
+list11 &lt;- c( &quot;TSTM WIND&quot;, &quot;THUNDERSTORM&quot;, &quot;THUNDER&quot;, &quot;TUNDER&quot;,
+             &quot;THUNDEER&quot;, &quot;THUDER&quot;, &quot;STORM WIND&quot;)
+
+event_types$EDITED[grepl(paste(list11,collapse=&quot;|&quot;),event_types$EVTYPE) &amp;
                    (event_types$EDITED == &quot;&quot;)] &lt;- &quot;THUNDERSTORM WIND&quot;
 
-event_types$EDITED[grepl(&quot;LIGHTNING&quot;,event_types$EVTYPE) &amp;
+# lightning
+list12 &lt;- c(&quot;LIGHTNING&quot;)
+event_types$EDITED[grepl(paste(list12,collapse=&quot;|&quot;),event_types$EVTYPE) &amp;
                    (event_types$EDITED == &quot;&quot;)] &lt;- &quot;LIGHTNING&quot;
 
-
 # at this point, everything left with snow is also winter
-event_types$EDITED[grepl(&quot;SNOW&quot;,event_types$EVTYPE) &amp;
+list13 &lt;- c(&quot;SNOW&quot;)
+event_types$EDITED[grepl(paste(list13,collapse=&quot;|&quot;),event_types$EVTYPE) &amp;
                    (event_types$EDITED == &quot;&quot;)] &lt;- &quot;WINTER&quot;
 
 # TROPICAL STORMS, etc
-event_types$EDITED[grepl(&quot;TROPICAL&quot;,event_types$EVTYPE) &amp;
-                   (event_types$EDITED == &quot;&quot;)] &lt;- &quot;TROPICAL&quot;
-event_types$EDITED[grepl(&quot;MARINE&quot;,event_types$EVTYPE) &amp;
-                   (event_types$EDITED == &quot;&quot;)] &lt;- &quot;TROPICAL&quot;
-event_types$EDITED[grepl(&quot;TSUNAMI&quot;,event_types$EVTYPE) &amp;
-                   (event_types$EDITED == &quot;&quot;)] &lt;- &quot;TROPICAL&quot;
-event_types$EDITED[grepl(&quot;TYPHOON&quot;,event_types$EVTYPE) &amp;
-                   (event_types$EDITED == &quot;&quot;)] &lt;- &quot;TROPICAL&quot;
-event_types$EDITED[grepl(&quot;HURRICANE&quot;,event_types$EVTYPE) &amp;
-                   (event_types$EDITED == &quot;&quot;)] &lt;- &quot;TROPICAL&quot;
-event_types$EDITED[grepl(&quot;SURGE&quot;,event_types$EVTYPE) &amp;
-                   (event_types$EDITED == &quot;&quot;)] &lt;- &quot;TROPICAL&quot;
-event_types$EDITED[grepl(&quot;SURF&quot;,event_types$EVTYPE) &amp;
+list14 &lt;- c(&quot;TROPICAL&quot;, &quot;MARINE&quot;, &quot;TSUNAMI&quot;, &quot;TYPHOON&quot;,
+            &quot;HURRICANE&quot;, &quot;SURGE&quot;, &quot;SURF&quot;)
+
+event_types$EDITED[grepl(paste(list14,collapse=&quot;|&quot;),event_types$EVTYPE) &amp;
                    (event_types$EDITED == &quot;&quot;)] &lt;- &quot;TROPICAL&quot;
 
-# OTHER RAIN
-event_types$EDITED[grepl(&quot;RAIN&quot;,event_types$EVTYPE) &amp;
+# OTHER RAIN - anything left that has the word RAIN
+list15 &lt;- c(&quot;RAIN&quot;)
+event_types$EDITED[grepl(paste(list15,collapse=&quot;|&quot;),event_types$EVTYPE) &amp;
                    (event_types$EDITED == &quot;&quot;)] &lt;- &quot;HEAVY RAIN&quot;
 
-# let&#39;s start picking off wind, of which there&#39;s a lot
-event_types$EDITED[grepl(&quot;HIGH WIND&quot;,event_types$EVTYPE) &amp;
-                   (event_types$EDITED == &quot;&quot;)] &lt;- &quot;HIGH WIND&quot;
-event_types$EDITED[grepl(&quot;MICROBURST&quot;,event_types$EVTYPE) &amp;
-                   (event_types$EDITED == &quot;&quot;)] &lt;- &quot;HIGH WIND&quot;
-event_types$EDITED[grepl(&quot;MICOBURST&quot;,event_types$EVTYPE) &amp;
+# let&#39;s START picking off wind, of which there&#39;s a lot
+list16 &lt;- c( &quot;HIGH WIND&quot;, &quot;MICROBURST&quot;, &quot;MICOBURST&quot;)
+
+event_types$EDITED[grepl(paste(list16,collapse=&quot;|&quot;),event_types$EVTYPE) &amp;
                    (event_types$EDITED == &quot;&quot;)] &lt;- &quot;HIGH WIND&quot;
 
 # FIRE
-event_types$EDITED[grepl(&quot;FIRE&quot;,event_types$EVTYPE) &amp;
-                   (event_types$EDITED == &quot;&quot;)] &lt;- &quot;WILDFIRE&quot;
-event_types$EDITED[grepl(&quot;SMOKE&quot;,event_types$EVTYPE) &amp;
+list17 &lt;- c(&quot;FIRE&quot;, &quot;SMOKE&quot;)
+event_types$EDITED[grepl(paste(list17,collapse=&quot;|&quot;),event_types$EVTYPE) &amp;
                    (event_types$EDITED == &quot;&quot;)] &lt;- &quot;WILDFIRE&quot;
 
 
 # at this point, everything left with WIND is high wind imho
-event_types$EDITED[grepl(&quot;WIND&quot;,event_types$EVTYPE) &amp;
+list18 &lt;- c(&quot;WIND&quot;)
+event_types$EDITED[grepl(paste(list18,collapse=&quot;|&quot;),event_types$EVTYPE) &amp;
                    (event_types$EDITED == &quot;&quot;)] &lt;- &quot;HIGH WIND&quot;
 
 # There are a LOT of events from 1996 called &quot;summary&quot;
-event_types$EDITED[grepl(&quot;SUMMARY&quot;,event_types$EVTYPE) &amp;
+# although we have no idea what they mean, let&#39;s lump them together
+list19 &lt;- c(&quot;SUMMARY&quot;)
+event_types$EDITED[grepl(paste(list19,collapse=&quot;|&quot;),event_types$EVTYPE) &amp;
                    (event_types$EDITED == &quot;&quot;)] &lt;- &quot;SUMMARY in 1996&quot;
 
-# all the warm left means heat
-event_types$EDITED[grepl(&quot;WARM&quot;,event_types$EVTYPE) &amp;
+# all the warm left,at this point, means heat
+list20 &lt;- c(&quot;WARM&quot;)
+event_types$EDITED[grepl(paste(list20,collapse=&quot;|&quot;),event_types$EVTYPE) &amp;
                    (event_types$EDITED == &quot;&quot;)] &lt;- &quot;HEAT&quot;
 
 # drought
-event_types$EDITED[grepl(&quot;DROUGHT&quot;,event_types$EVTYPE) &amp;
-                   (event_types$EDITED == &quot;&quot;)] &lt;- &quot;DROUGHT&quot;
-event_types$EDITED[grepl(&quot;DRY&quot;,event_types$EVTYPE) &amp;
+list21 &lt;- c(&quot;DROUGHT&quot;, &quot;DRY&quot;)
+event_types$EDITED[grepl(paste(list21,collapse=&quot;|&quot;),event_types$EVTYPE) &amp;
                    (event_types$EDITED == &quot;&quot;)] &lt;- &quot;DROUGHT&quot;
 
 # rip tides will have fatalities, and there are about 400 of each spelling
-event_types$EDITED[grepl(&quot;RIP&quot;,event_types$EVTYPE) &amp;
+list22 &lt;- c(&quot;RIP&quot;)
+event_types$EDITED[grepl(paste(list22,collapse=&quot;|&quot;),event_types$EVTYPE) &amp;
                    (event_types$EDITED == &quot;&quot;)] &lt;- &quot;RIP CURRENT&quot;
 
 
 # remaining urbans are flood
-event_types$EDITED[grepl(&quot;URBAN&quot;,event_types$EVTYPE) &amp;
+list23 &lt;- c(&quot;URBAN&quot;)
+event_types$EDITED[grepl(paste(list23,collapse=&quot;|&quot;),event_types$EVTYPE) &amp;
                    (event_types$EDITED == &quot;&quot;)] &lt;- &quot;FLOOD&quot;
 
 # earth movements
-event_types$EDITED[grepl(&quot;LANDSLIDE&quot;,event_types$EVTYPE) &amp;
-                   (event_types$EDITED == &quot;&quot;)] &lt;- &quot;AVALANCHE&quot;
-event_types$EDITED[grepl(&quot;AVA&quot;,event_types$EVTYPE) &amp;
-                   (event_types$EDITED == &quot;&quot;)] &lt;- &quot;AVALANCHE&quot;
-event_types$EDITED[grepl(&quot;ROCK&quot;,event_types$EVTYPE) &amp;
-                   (event_types$EDITED == &quot;&quot;)] &lt;- &quot;AVALANCHE&quot;
-event_types$EDITED[grepl(&quot;MUD&quot;,event_types$EVTYPE) &amp;
+list24 &lt;- c(&quot;LANDSLIDE&quot;, &quot;AVA&quot;, &quot;ROCK&quot;, &quot;MUD&quot;)
+
+event_types$EDITED[grepl(paste(list24,collapse=&quot;|&quot;),event_types$EVTYPE) &amp;
                    (event_types$EDITED == &quot;&quot;)] &lt;- &quot;AVALANCHE&quot;
 
 # FOG
-event_types$EDITED[grepl(&quot;FOG&quot;,event_types$EVTYPE) &amp;
+list25 &lt;- c(&quot;FOG&quot;)
+event_types$EDITED[grepl(paste(list25,collapse=&quot;|&quot;),event_types$EVTYPE) &amp;
                    (event_types$EDITED == &quot;&quot;)] &lt;- &quot;DENSE FOG&quot;
+
+# GUSTS that aren&#39;t something else
+list26 &lt;- c(&quot;GUST&quot;)
+event_types$EDITED[grepl(paste(list26,collapse=&quot;|&quot;),event_types$EVTYPE) &amp;
+                   (event_types$EDITED == &quot;&quot;)] &lt;- &quot;HIGH WIND&quot;
 
 
 # edited_event_types  &lt;- with(event_types,table(EDITED))
@@ -588,7 +565,7 @@ The frequency of my combined/corrected events is as follows.</p>
 </code></pre>
 
 <pre><code>##                     [,1]
-##                      868
+##                      719
 ## AVALANCHE           1033
 ## COLD                2706
 ## DENSE FOG           1834
@@ -599,10 +576,10 @@ The frequency of my combined/corrected events is as follows.</p>
 ## HAIL              290398
 ## HEAT                2993
 ## HEAVY RAIN         11862
-## HIGH WIND          26314
+## HIGH WIND          26321
 ## LIGHTNING          15764
 ## RIP CURRENT          774
-## SLEET               2720
+## SLEET               2862
 ## SUMMARY in 1996       75
 ## THUNDERSTORM WIND 335691
 ## TORNADO            71538
@@ -613,7 +590,9 @@ The frequency of my combined/corrected events is as follows.</p>
 </code></pre>
 
 <p>This shows our expected total of
- 902297, as expected.</p>
+ 902297, as expected.
+It leaves only sum(event_types[event_types$EDITED==&ldquo;&rdquo;,&ldquo;Freq&rdquo;]) unexplained,
+which we&#39;ll argue is negligible.</p>
 
 <h1></h1>
 
@@ -624,6 +603,79 @@ The frequency of my combined/corrected events is as follows.</p>
 <pre><code class="r">main_data &lt;- merge(main_data,event_types,by=&quot;EVTYPE&quot;)
 event_types2  &lt;- with(main_data,table(EDITED))
 event_types2 &lt;- as.data.frame(event_types2)
+</code></pre>
+
+<p>Now we do the actual work of the assignment: assigning fatalities, injuries,
+and economic damage to these stylized types.</p>
+
+<p>We first make some heroic assumptions about PROPDMGEXP being an exponent on
+the dollars in PROPDMG; ditto for crop damage. The vast majority of these
+&hellip;EXP fields are empty. As before, we are cautious and create a new edited
+field and work on that, so we can compare results. Inspection of the exponents
+shows we have nothing, +,-,?,and positive integers 0-9. </p>
+
+<pre><code class="r">as.data.frame(with(main_data,table(PROPDMGEXP)))
+</code></pre>
+
+<pre><code>##    PROPDMGEXP   Freq
+## 1             465934
+## 2           -      1
+## 3           ?      8
+## 4           +      5
+## 5           0    216
+## 6           1     25
+## 7           2     13
+## 8           3      4
+## 9           4      4
+## 10          5     28
+## 11          6      4
+## 12          7      5
+## 13          8      1
+## 14          B     40
+## 15          h      1
+## 16          H      6
+## 17          K 424665
+## 18          m      7
+## 19          M  11330
+</code></pre>
+
+<pre><code class="r">as.data.frame(with(main_data,table(CROPDMGEXP)))
+</code></pre>
+
+<pre><code>##   CROPDMGEXP   Freq
+## 1            618413
+## 2          ?      7
+## 3          0     19
+## 4          2      1
+## 5          B      9
+## 6          k     21
+## 7          K 281832
+## 8          m      1
+## 9          M   1994
+</code></pre>
+
+<p>Nevertheless, we plunge ahead.</p>
+
+<pre><code class="r">main_data$PD_EXPONENT &lt;- as.character(main_data$PROPDMGEXP)
+main_data$PD_EXPONENT[main_data$PD_EXPONENT==&quot;&quot;] &lt;- 0
+main_data$PD_EXPONENT[grepl(&quot;\\+|\\-|\\?&quot;,main_data$PD_EXPONENT)] &lt;- 0
+main_data$PD_EXPONENT[grepl(&quot;h|H&quot;,main_data$PD_EXPONENT)] &lt;- 2
+main_data$PD_EXPONENT[grepl(&quot;k|K&quot;,main_data$PD_EXPONENT)] &lt;- 3
+main_data$PD_EXPONENT[grepl(&quot;m|M&quot;,main_data$PD_EXPONENT)] &lt;- 6
+main_data$PD_EXPONENT[grepl(&quot;b|B&quot;,main_data$PD_EXPONENT)] &lt;- 9
+main_data$PD_EXPONENT &lt;- as.numeric(main_data$PD_EXPONENT)
+
+main_data$CD_EXPONENT &lt;- as.character(main_data$CROPDMGEXP)
+main_data$CD_EXPONENT[main_data$CD_EXPONENT==&quot;&quot;] &lt;- 0
+main_data$CD_EXPONENT[grepl(&quot;\\+|\\-|\\?&quot;,main_data$CD_EXPONENT)] &lt;- 0 # weird things
+main_data$CD_EXPONENT[grepl(&quot;h|H&quot;,main_data$CD_EXPONENT)] &lt;- 2 # hundreds
+main_data$CD_EXPONENT[grepl(&quot;k|K&quot;,main_data$CD_EXPONENT)] &lt;- 3 # thousands
+main_data$CD_EXPONENT[grepl(&quot;m|M&quot;,main_data$CD_EXPONENT)] &lt;- 6 # millions
+main_data$CD_EXPONENT[grepl(&quot;b|B&quot;,main_data$CD_EXPONENT)] &lt;- 9 # billions
+main_data$CD_EXPONENT &lt;- as.numeric(main_data$CD_EXPONENT)
+
+main_data$PROP_DAMAGE &lt;- main_data$PROPDMG * 10^main_data$PD_EXPONENT
+main_data$CROP_DAMAGE &lt;- main_data$CROPDMG * 10^main_data$CD_EXPONENT
 </code></pre>
 
 <h1></h1>
