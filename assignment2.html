@@ -588,8 +588,10 @@ which we&#39;ll argue is negligible.</p>
 <p>We now map our stylized, simplified set of events to the main data set.</p>
 
 <pre><code class="r">main_data &lt;- merge(main_data,event_types,by=&quot;EVTYPE&quot;)
-event_types2  &lt;- with(main_data,table(EDITED))
-event_types2 &lt;- as.data.frame(event_types2)
+
+# this isn&#39;t necessary
+# event_types2  &lt;- with(main_data,table(EDITED))
+# event_types2 &lt;- as.data.frame(event_types2)
 </code></pre>
 
 <p>Now we do the actual work of the assignment: assigning fatalities, injuries,

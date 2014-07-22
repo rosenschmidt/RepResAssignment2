@@ -412,10 +412,11 @@ We now map our stylized, simplified set of events to the main data set.
 
 ```r
 main_data <- merge(main_data,event_types,by="EVTYPE")
-event_types2  <- with(main_data,table(EDITED))
-event_types2 <- as.data.frame(event_types2)
-```
 
+# this isn't necessary
+# event_types2  <- with(main_data,table(EDITED))
+# event_types2 <- as.data.frame(event_types2)
+```
 Now we do the actual work of the assignment: assigning fatalities, injuries,
 and economic damage to these stylized types.
 
