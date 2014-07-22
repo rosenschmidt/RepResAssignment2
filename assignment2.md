@@ -11,68 +11,51 @@ Part of the Data Science sequence of courses.
 ## Synopsis
 
 TO DO
- - [done] synopsis
- - [done] uli zellbeck grepl improvements
- - footnote to same
- - footnotes in Rmd?
- - vastly shorten the data cleanup section
- - [done] try a tertiary, quaternary heading
- - [done] why doesn't !file.exists work for me?
  - histogram bars - don't have control over them
  - scaling of graphs
  - conclusions
- - summary
 
-This is a short analysis of data from NOAA weather storm database,
-specifically the National Climactic Data Center Storm Events, at
-[NOAA](www.ncdc.noaa.gov/stormevents/details.jsp).
-More detailed documentation of the database is provided on that site,
-[documentation]( http://www.ncdc.noaa.gov/stormevents/pd01016005curr.pdf) in
-**.pdf** format. As described below, the data provided for this course assignment
-appears to have been massaged somewhat and may perhaps be different than
-what one might download directly from that site. The data cover the period
-January 3 1950, through November 30, 2011.
+This is a short analysis of data from NOAA weather 
+[storm database](http://www.ncdc.noaa.gov/stormevents/details.jsp).
+**.pdf** documentation is at
+[NOAA](http://www.ncdc.noaa.gov/stormevents/pd01016005curr.pdf).
 
-
-The goal of the analysis is to measure, in a simple way, the economic and human
-costs of various weather events, as defined in dollar estimates, and 
-injuries and fatalities. Similar studies (e.g. submissions by other students
-in this class) may come to starkly different results, because of how the
-weather events are grouped - due to problems in the data, we must decide
-which weather events are "the same" in some sense.
+The goal is to measure, in a simple way, the economic and human
+costs of various weather events.
 
 This analysis and its data are posted on my github site,
 [rosenschmidt](https://github.com/rosenschmidt/RepResAssignment2)
 along with the actual data used and, by the time you are reading this,
 perhaps some additional ancillary material.
 
-This analysis is somewhat over-documented, as it will be a record  to myself
-of how to do certain things.
-
 ================================================================================
 
 ## Data Processing
 
+Due to problems in the data, we must clean it up, deciding
+which weather events are "the same" in some sense.
+As described below, the data provided for the course assignment
+appear to have been massaged somewhat and may be different than
+what one might download directly from that site.
+
 ### Data Sources
 
-That particular [NOAA](www.ncdc.noaa.gov/stormevents/details.jsp) web site
-gave me a hint of the troubles to come. As these troubles came to light, 
-I attempted my own download of the data, but I did not see any way to easily
-replicate the download (all years in one file). Furthermore, a cursory inspection
-of the data revealed that it did not *seem* to have the problems in the file
-provided for the course. *Therefore*, I used the data file provided on the
-course website.
+For the course, we are given a complete
+[file](http://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2),
+where all the years from 1950 through 2011 are in one **.csv** file.
 
-In particular, that the database allows 48 different types of weather event,
-yet the dataset we are given for the class has nearly a thousand! That led to 
-the next dillemma. For the course, we are given a complete file,
-[datasite](http://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2)
-where all the years from 1950 through 2011. There are other questionable
-features of this dataset, which I won't go into,
-and if the scope of the assignment allowed,
-I would add a section to this analysis replicating the production of the data file
-from the NOAA website. As I've mentioned, however, that does not look
-straightforward, so we leave that as an exercise for the reader.
+The [NOAA](http://www.ncdc.noaa.gov/stormevents/details.jsp) web site
+gave me a hint of the troubles to come. 
+In particular, the database allows 48 different types of weather event,
+yet the dataset we are given for the class has nearly a thousand!
+
+I considered downloading the data from the original source,
+but I did not see any way to easily
+replicate what we were given (all years in one file).
+Furthermore, a cursory inspection
+of the NOAA data revealed that it did not *seem* to have the problems.
+
+So we stick with what we were given.
 
 ### The Computing Environment I Used
 
@@ -113,16 +96,10 @@ This file was tested and run first in Rgui,
 
 ### Unzipping and Reading the Data
 
-
-TO DO: unzip the data successfully (so far no luck). But for whatever reason,
-on *MY* system, I can read the .bz2 file directly. 
-
-For posterity's sake, I've checked in to this github repository.
+We use the cache=TRUE Rmd option, since this is the slowest part
 
 
 ```r
-# We use the cache=TRUE Rmd option, since this is the slowest part
-
 if(!file.exists("repdata-data-StormData.csv.bz2"))
      {
         # I had to change https to http in the URL from the web site,
@@ -132,12 +109,13 @@ if(!file.exists("repdata-data-StormData.csv.bz2"))
      }
 ```
 
-Here is some text between getting and reading.
+Because on my system I don't need to, I save disk space by not unzipping:
+I read the **.bz2** file directly.
 
 
 
 ```r
-# Because I don't need to on my system, I save the unzip:
+# not needed
 # bunzip2("repdata-data-stormData.csv.bz2")
 
 main_data <- read.table("repdata-data-StormData.csv.bz2",
@@ -146,24 +124,21 @@ main_data <- read.table("repdata-data-StormData.csv.bz2",
                          strip.white=TRUE)
 ```
 
-Note that I've already begun the data cleaning: namely, the option
-**strip.white=TRUE**. That's because, in this data set, there are event types
-that differ only in leading or trailing white space.
-
 ================================================================================
-
 
 ### A Further Note on Processing the Data - PROBLEMS WITH EVENT TYPES!
 
-The strip.white=TRUE begins the process of cleaning the EVTYPE variable.
-According to the [documentation](www.ncdc.noaa.gov/stormevents/details.jsp),
- there are 48 allowed 
-event types. And yet casual inspection of the data set shows a lot! And we have
-already stripped white space in the read.table above, because visual inspection
-showed EVTYPES such as "WIND", " WIND", "   WIND     ", etc.
+Simple visual inspection of the EVTYPE column of the **main_data** frame
+shows big problems with this variable, on which the whole analysis hinges.
 
-Since we got rid of white space, let's get rid of all the upper and lower case
-combinatorics, which eliminates about 100 of the 1000, or 10%:
+Note that I've already begun the data cleaning: namely, the option
+**strip.white=TRUE**. That's because there are event types
+that differ only in leading or trailing white space.
+
+Gettinge rid of the upper and lower case combinatorics eliminates another 10%.
+
+I will create a table of event types, clean those up, and then use merge
+to tack my consolidated event types onto the main data frame.
 
 
 ```r
@@ -173,10 +148,12 @@ main_data$EVTYPE <- as.factor(main_data$EVTYPE)
 
 event_types  <- with(main_data,table(EVTYPE))
 
-# I cannot make heads nor tails of how to print this neatly, but if I do
+# we need to do this so it will print nicely
+
 event_types <- as.data.frame(event_types)
-# Now, printing y to the terminal ( i.e. "> y <CR> " ) would give me
-# a nice columnar output. 
+
+# Now, printing y to the terminal ( i.e. "> y <CR> " ) gives
+# a nice columnar output.
 head(event_types,n=20)
 ```
 
@@ -204,33 +181,34 @@ head(event_types,n=20)
 ## 20           BEACH EROSIN    1
 ```
 
-*There are 898 values in the EVTYPE field of this data set.
-Even though the documentation specifies 48 allowed EVTYPEs.*
-And this is *after* stripping white space and converting all characters to the
-same case.
-
-Of these 898 values, a simple visual inspection shows that many
-are variants, and a little work with grepl to replace like terms with 
+These first rows show that even after eliminating
+white space and upper/lower case,
+there are still 898 weather event types to deal with!
+Many are spelling or wording variants,
+and a little work with grepl to replace like terms with 
 exactly the same term will quickly yield a better analysis.
 
 ### An Executive Decision: COMBINE EVENT TYPES
 
-It would be nice to use grep and so forth to combine all disallowed
-types into allowed types, without combinbing allowed types, but that gets messy.
+It would be nice to use grepl and so forth to combine all disallowed
+types into allowed types, *without* combining allowed types,
+ but that gets messy.
 
-Therefore, even if it means **combining allowed values**, I will combine event types.
-I will do this for two reasons. First, for example, what is the difference
+
+Plus, 48 is still a lot of types. For example, what is the difference
 between Blizzard, Heavy Snow, Winter Storm, and Winter Weather?
-Plus, one could argue that misclassification among **allowed types**
+One could argue that misclassification among **allowed types**
 disguises the economic and health costs of certain events.
 
-So as to make the analysis more reproducible, I will combine them into 
-my own added variable. As we recall from the prior classes, we can add a column
-to a data frame merly by naming it. We'll do this to event_types first
-to see how it looks.
+Therefore, even if it means combining **allowed** values, I will do so.
+I will come up with my own "tighter" classification, which the **R** 
+code below documents.
 
-NOTE that the way that I do this, order *might* matter, in that for example
-I am only filling in the EDITED field if it was not previously filled in.
+As we recall from the prior classes, we can add a column
+to a data frame merly by naming it.
+
+NOTE that the way that I do this, order *might* matter, because
+I am only filling in the EDITED field if I didn't already do so.
 Thus words like WIND, RAIN, etc which might appear multiply in descriptions,
 are sort of picked out in the order that I manually determined as I did these
 sequentially. Your mileage may vary. (However, as we find below, the results
@@ -421,14 +399,17 @@ rowsum(event_types$Freq,event_types$EDITED)
 ## WILDFIRE            4260
 ## WINTER             39979
 ```
-This shows our expected total of
- 902297, as expected.
-It leaves only sum(event_types[event_types$EDITED=="","Freq"]) unexplained,
+This shows we still have our expected total of
+ 902297 events.
+So we didn't screw it up!
+It leaves only 719 unexplained,
 which we'll argue is negligible.
 
 ================================================================================
 
 ## RESULTS
+
+### COMPUTING RESULTS
 
 We now map our stylized, simplified set of events to the main data set.
 
@@ -447,6 +428,7 @@ the dollars in PROPDMG; ditto for crop damage. The vast majority of these
 ...EXP fields are empty. As before, we are cautious and create a new edited
 field and work on that, so we can compare results. Inspection of the exponents
 shows we have nothing, +,-,?,and positive integers 0-9. 
+
 
 ```r
 as.data.frame(with(main_data,table(PROPDMGEXP)))
@@ -520,8 +502,10 @@ main_data$CROP_DAMAGE <- main_data$CROPDMG * 10^main_data$CD_EXPONENT
 
 ================================================================================
 
-## CONCLUSIONS
+### RESULTS NUMERICALLY
 
+
+First we compute the totals for events. 
 
 ```r
 prop_damage <- aggregate(main_data$PROP_DAMAGE,by=list(main_data$EDITED),sum)
@@ -539,43 +523,23 @@ fatalities$EVENT <- as.factor(fatalities$EVENT)
 injuries$EVENT <- as.factor(injuries$EVENT)
 ```
 
+Now we display them.
+
+### RESULTS PICTORIALLY
+
 
 ```r
 par(mfrow=c(2,1),mar=c(10,5,2.5,1),las=2)
-plot(prop_damage$EVENT,log10(prop_damage$TOTAL),
+plot(prop_damage$EVENT,prop_damage$TOTAL/10^9,
      las=2,
      type="h",
-     ylab="log base 10 of total property damage",
-     main="Property Damage")
-```
-
-```
-## Warning: no non-missing arguments to min; returning Inf
-## Warning: no non-missing arguments to max; returning -Inf
-## Warning: Outlier (-Inf) in boxplot 16 is not drawn
-```
-
-```r
-plot(crop_damage$EVENT,log10(crop_damage$TOTAL),
+     ylab="Total Property Damage ($Billion)",
+     main="Property Damage by Weather Event Type 1950-2011")
+plot(crop_damage$EVENT,crop_damage$TOTAL/10^9,
      las=2,
      type="h",
-     ylab="log base 10 of total crop damage",
-     main="Crop Damage")
-```
-
-```
-## Warning: no non-missing arguments to min; returning Inf
-## Warning: no non-missing arguments to max; returning -Inf
-## Warning: no non-missing arguments to min; returning Inf
-## Warning: no non-missing arguments to max; returning -Inf
-## Warning: no non-missing arguments to min; returning Inf
-## Warning: no non-missing arguments to max; returning -Inf
-## Warning: no non-missing arguments to min; returning Inf
-## Warning: no non-missing arguments to max; returning -Inf
-## Warning: Outlier (-Inf) in boxplot 4 is not drawn
-## Warning: Outlier (-Inf) in boxplot 14 is not drawn
-## Warning: Outlier (-Inf) in boxplot 16 is not drawn
-## Warning: Outlier (-Inf) in boxplot 20 is not drawn
+     ylab="Total Crop Damage ($Billion)",
+     main="Crop Damage by Weather Event Type 1950-2011")
 ```
 
 ![plot of chunk results2](figure/results2.png) 
@@ -583,59 +547,35 @@ plot(crop_damage$EVENT,log10(crop_damage$TOTAL),
 
 ```r
 par(mfrow=c(2,1),mar=c(10,5,2.5,1),las=2)
-plot(fatalities$EVENT,log10(fatalities$TOTAL),
+plot(fatalities$EVENT,fatalities$TOTAL,
      las=2,
      type="h",
-     ylab="log base 10 of total fatalities",
-     main="Fatalities")
-```
-
-```
-## Warning: no non-missing arguments to min; returning Inf
-## Warning: no non-missing arguments to max; returning -Inf
-## Warning: no non-missing arguments to min; returning Inf
-## Warning: no non-missing arguments to max; returning -Inf
-## Warning: no non-missing arguments to min; returning Inf
-## Warning: no non-missing arguments to max; returning -Inf
-## Warning: Outlier (-Inf) in boxplot 5 is not drawn
-## Warning: Outlier (-Inf) in boxplot 16 is not drawn
-## Warning: Outlier (-Inf) in boxplot 20 is not drawn
-```
-
-```r
-plot(injuries$EVENT,log10(injuries$TOTAL),
+     ylab="Fatalities",
+     main="Fatalities by Weather Event Type 1950-2011")
+plot(injuries$EVENT,injuries$TOTAL,
      las=2,
      type="h",
-     ylab="log base 10 of total injuries",
-     main="Injuries")
-```
-
-```
-## Warning: no non-missing arguments to min; returning Inf
-## Warning: no non-missing arguments to max; returning -Inf
-## Warning: no non-missing arguments to min; returning Inf
-## Warning: no non-missing arguments to max; returning -Inf
-## Warning: Outlier (-Inf) in boxplot 16 is not drawn
-## Warning: Outlier (-Inf) in boxplot 20 is not drawn
+     ylab="total injuries",
+     main="Injuries by Weather Event Type 1950-2011")
 ```
 
 ![plot of chunk results3](figure/results3.png) 
-
+I can't figure out how to make histograms with bars when the x axis variable
+is a factor. But this assigment is an analysis, and I won't attempt to be
+publication quality.
 
 ================================================================================
 
 ## SUMMARY
 
+Far and away, property damage is caused by events that are flood, tropical
+storm, or tornado related. Crop damage is caused by drought, flood, sleet,
+and tropical storm events, with hail a distant fifth.
+
+Fatalities are far and away caused by tornadoes, with heat and floods coming in
+not so much.  Lightning and thunderstorms lead the back of the pack.
+Injuries are also far and away caused by tornadoes, with heat, thunderstorms,
+and flood tied for a very distand 2nd place.
 
 ================================================================================
-
-## scratch pad of stuff remove for final version
-
-
-```r
-# z <- main_data$BGN_DATE[grepl("summary",main_data$EVTYPE,ignore.case=TRUE)]
-
-# z
-```
-
 ================================================================================
