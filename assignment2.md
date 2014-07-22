@@ -10,11 +10,6 @@ Part of the Data Science sequence of courses.
 
 ## Synopsis
 
-TO DO
- - histogram bars - don't have control over them
- - scaling of graphs
- - conclusions
-
 This is a short analysis of data from NOAA weather 
 [storm database](http://www.ncdc.noaa.gov/stormevents/details.jsp).
 **.pdf** documentation is at
@@ -208,7 +203,7 @@ As we recall from the prior classes, we can add a column
 to a data frame merly by naming it.
 
 NOTE that the way that I do this, order *might* matter, because
-I am only filling in the EDITED field if I didn't already do so.
+as I go, I only fill in the event field if I didn't already do so.
 Thus words like WIND, RAIN, etc which might appear multiply in descriptions,
 are sort of picked out in the order that I manually determined as I did these
 sequentially. Your mileage may vary. (However, as we find below, the results
@@ -402,7 +397,8 @@ rowsum(event_types$Freq,event_types$EDITED)
 This shows we still have our expected total of
  902297 events.
 So we didn't screw it up!
-It leaves only 719 unexplained,
+We could keep going, but the top row of the above table shows that
+this leaves only 719 unclassified,
 which we'll argue is negligible.
 
 ================================================================================
@@ -505,7 +501,7 @@ main_data$CROP_DAMAGE <- main_data$CROPDMG * 10^main_data$CD_EXPONENT
 ### RESULTS NUMERICALLY
 
 
-First we compute the totals for events. 
+First we compute the totals for our stylized events. 
 
 ```r
 prop_damage <- aggregate(main_data$PROP_DAMAGE,by=list(main_data$EDITED),sum)

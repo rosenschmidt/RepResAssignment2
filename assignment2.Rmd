@@ -157,7 +157,7 @@ As we recall from the prior classes, we can add a column
 to a data frame merly by naming it.
 
 NOTE that the way that I do this, order *might* matter, because
-I am only filling in the EDITED field if I didn't already do so.
+as I go, I only fill in the event field if I didn't already do so.
 Thus words like WIND, RAIN, etc which might appear multiply in descriptions,
 are sort of picked out in the order that I manually determined as I did these
 sequentially. Your mileage may vary. (However, as we find below, the results
@@ -325,7 +325,8 @@ rowsum(event_types$Freq,event_types$EDITED)
 This shows we still have our expected total of
  `r sum(rowsum(event_types$Freq,event_types$EDITED))` events.
 So we didn't screw it up!
-It leaves only `r sum(event_types[event_types$EDITED=="","Freq"])` unexplained,
+We could keep going, but the top row of the above table shows that
+this leaves only `r sum(event_types[event_types$EDITED=="","Freq"])` unclassified,
 which we'll argue is negligible.
 
 ================================================================================
