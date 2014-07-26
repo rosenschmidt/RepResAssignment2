@@ -1,3 +1,6 @@
+---
+output: html_document
+---
 ================================================================================
 # An Analysis of some Weather Data to Determine Economic and Human Costs
 
@@ -78,8 +81,7 @@ sessionInfo()
 ## [1] knitr_1.6
 ## 
 ## loaded via a namespace (and not attached):
-## [1] codetools_0.2-8 digest_0.6.4    evaluate_0.5.5  formatR_0.10   
-## [5] markdown_0.7    mime_0.1.1      stringr_0.6.2   tools_3.1.1
+## [1] evaluate_0.5.5 formatR_0.10   stringr_0.6.2  tools_3.1.1
 ```
 which shows certain relevant information, except Windows 7 and an Intel
 motherboard and CPU.

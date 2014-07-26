@@ -1,3 +1,6 @@
+---
+output: html_document
+---
 ================================================================================
 # An Analysis of some Weather Data to Determine Economic and Human Costs
 
