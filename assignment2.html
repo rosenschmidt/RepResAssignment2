@@ -199,8 +199,6 @@ hr {
 <p>For coursera Reproducible Data with Roger Peng et. al.
 Part of the Data Science sequence of courses.</p>
 
-<h1></h1>
-
 <h2>Synopsis</h2>
 
 <p>This is a short analysis of data from NOAA weather 
@@ -226,6 +224,8 @@ As described below, the data provided for the course assignment
 appear to have been massaged somewhat and may be different than
 what one might download directly from that site.</p>
 
+<h1></h1>
+
 <h3>Data Sources</h3>
 
 <p>For the course, we are given a complete
@@ -244,6 +244,8 @@ Furthermore, a cursory inspection
 of the NOAA data revealed that it did not <em>seem</em> to have the problems.</p>
 
 <p>So we stick with what we were given.</p>
+
+<h1></h1>
 
 <h3>The Computing Environment I Used</h3>
 
@@ -269,7 +271,8 @@ of the NOAA data revealed that it did not <em>seem</em> to have the problems.</p
 ## [1] knitr_1.6
 ## 
 ## loaded via a namespace (and not attached):
-## [1] evaluate_0.5.5 formatR_0.10   stringr_0.6.2  tools_3.1.1
+## [1] evaluate_0.5.5 formatR_0.10   markdown_0.7   stringr_0.6.2 
+## [5] tools_3.1.1
 </code></pre>
 
 <p>which shows certain relevant information, except Windows 7 and an Intel
@@ -303,8 +306,6 @@ main_data &lt;- read.table(&quot;repdata-data-StormData.csv.bz2&quot;,
                          header=TRUE,
                          strip.white=TRUE)
 </code></pre>
-
-<h1></h1>
 
 <h3>A Further Note on Processing the Data - PROBLEMS WITH EVENT TYPES!</h3>
 
@@ -666,6 +667,15 @@ main_data$PROP_DAMAGE &lt;- main_data$PROPDMG * 10^main_data$PD_EXPONENT
 main_data$CROP_DAMAGE &lt;- main_data$CROPDMG * 10^main_data$CD_EXPONENT
 </code></pre>
 
+<p>NOTE - a posting to the discussion forum for this class by David Hood,
+a community TA, cites a document, not from NOAA but I think from
+University of Colorado weather service office,
+saying that 0-9 are codes for rages of losses, not an exponent.
+If that document is correct, the interpretation I used above (also
+discussed in the forums for this class) is not right. If Hood is correct,
+the analysis presented here, while substantially correct in magnitude,
+would be incorrect in quantities.</p>
+
 <h1></h1>
 
 <h3>RESULTS NUMERICALLY</h3>
@@ -688,6 +698,8 @@ injuries$EVENT &lt;- as.factor(injuries$EVENT)
 </code></pre>
 
 <p>Now we display them.</p>
+
+<h1></h1>
 
 <h3>RESULTS PICTORIALLY</h3>
 
@@ -736,8 +748,6 @@ and tropical storm events, with hail a distant fifth.</p>
 not so much.  Lightning and thunderstorms lead the back of the pack.
 Injuries are also far and away caused by tornadoes, with heat, thunderstorms,
 and flood tied for a very distand 2nd place.</p>
-
-<h1></h1>
 
 <h1></h1>
 

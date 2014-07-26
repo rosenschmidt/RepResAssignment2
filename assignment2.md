@@ -1,7 +1,5 @@
----
-output: html_document
----
 ================================================================================
+
 # An Analysis of some Weather Data to Determine Economic and Human Costs
 
 #### by Fred Schmidt fred@rosenschmidt.org, July 2014
@@ -9,7 +7,6 @@ output: html_document
 For coursera Reproducible Data with Roger Peng et. al.
 Part of the Data Science sequence of courses.
 
-================================================================================
 
 ## Synopsis
 
@@ -36,6 +33,8 @@ As described below, the data provided for the course assignment
 appear to have been massaged somewhat and may be different than
 what one might download directly from that site.
 
+================================================================================
+
 ### Data Sources
 
 For the course, we are given a complete
@@ -54,6 +53,8 @@ Furthermore, a cursory inspection
 of the NOAA data revealed that it did not *seem* to have the problems.
 
 So we stick with what we were given.
+
+================================================================================
 
 ### The Computing Environment I Used
 
@@ -81,7 +82,8 @@ sessionInfo()
 ## [1] knitr_1.6
 ## 
 ## loaded via a namespace (and not attached):
-## [1] evaluate_0.5.5 formatR_0.10   stringr_0.6.2  tools_3.1.1
+## [1] evaluate_0.5.5 formatR_0.10   markdown_0.7   stringr_0.6.2 
+## [5] tools_3.1.1
 ```
 which shows certain relevant information, except Windows 7 and an Intel
 motherboard and CPU.
@@ -121,7 +123,6 @@ main_data <- read.table("repdata-data-StormData.csv.bz2",
                          strip.white=TRUE)
 ```
 
-================================================================================
 
 ### A Further Note on Processing the Data - PROBLEMS WITH EVENT TYPES!
 
@@ -498,11 +499,18 @@ main_data$CD_EXPONENT <- as.numeric(main_data$CD_EXPONENT)
 main_data$PROP_DAMAGE <- main_data$PROPDMG * 10^main_data$PD_EXPONENT
 main_data$CROP_DAMAGE <- main_data$CROPDMG * 10^main_data$CD_EXPONENT
 ```
+NOTE - a posting to the discussion forum for this class by David Hood,
+a community TA, cites a document, not from NOAA but I think from
+University of Colorado weather service office,
+saying that 0-9 are codes for rages of losses, not an exponent.
+If that document is correct, the interpretation I used above (also
+discussed in the forums for this class) is not right. If Hood is correct,
+the analysis presented here, while substantially correct in magnitude,
+would be incorrect in quantities.
 
 ================================================================================
 
 ### RESULTS NUMERICALLY
-
 
 First we compute the totals for our stylized events. 
 
@@ -523,6 +531,8 @@ injuries$EVENT <- as.factor(injuries$EVENT)
 ```
 
 Now we display them.
+
+================================================================================
 
 ### RESULTS PICTORIALLY
 
@@ -576,5 +586,4 @@ not so much.  Lightning and thunderstorms lead the back of the pack.
 Injuries are also far and away caused by tornadoes, with heat, thunderstorms,
 and flood tied for a very distand 2nd place.
 
-================================================================================
 ================================================================================
